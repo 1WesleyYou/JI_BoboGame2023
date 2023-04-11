@@ -4,11 +4,28 @@
 #define PS2_CMD        11  //15
 #define PS2_SEL        10  //16
 #define PS2_CLK        12  //17
+#define
 
-int input1 = 5; //PIN 5(PWM)
-int input2 = 6; //PIN 6(PWM)
-int input3 = 9; //PIN 9(PWM)
-int input4 = 3; //PIN 3(PWM）
+#define LF1 6
+#define LF2 7
+#define E1A_F 20
+#define E1B_F 34
+//右前轮（RF）引脚
+#define RF1 2
+#define RF2 3
+#define E2A_F 21
+#define E2B_F 38
+//右后轮（RB）引脚
+#define RB1 9
+#define RB2 8
+#define E1A_B 18
+#define E1B_B 26
+//左后轮（LB）引脚
+#define LB1 4
+#define LB2 5
+#define E2A_B 19
+#define E2B_B 30
+
 #define pressures   true
 #define rumble      true
 
