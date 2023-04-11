@@ -23,27 +23,32 @@
 float maxLinearSpeed = 200;
 int origin, x, y;
 Chassis chassis;
+RemoteControl remotecontrol;
 int comd;
 
-void Chassis::Reset() {
+void Chassis::Reset() {//底盘初始化赋值，每个轮子id设置
     FL.Reset(FL_WHEEL);
     BL.Reset(BL_WHEEL);
     BR.Reset(BR_WHEEL);
     FR.Reset(FR_WHEEL);
 }
 
-void Chassis::Handle() {
+void Chassis::Handle() {//底盘最终输出，每个轮子输出
     FL.Handle();
     FR.Handle();
     BL.Handle();
     BR.Handle();
 }
 
-void Chassis::AttitudeEncoding(float speedLF, float speedLB, float speedRF, float speedRB) {
-    FL.Handle();
-    FR.Handle();
-    BL.Handle();
-    BR.Handle();
+void RemoteControl::Reset() {
+    Mode=STOP;
+}
+
+void Chassis::AttitudeEncoding(int speedLF, int speedLB, int speedRF, int speedRB) {//底盘运动编码
+    FL.SetPWM(speedLF);
+    FR.SetPWM(speedRF);
+    BL.SetPWM(speedLB);
+    BR.SetPWM(speedRB);
     Serial.print("speedLF=");
     Serial.println(speedLF);
     Serial.print("speedLB=");
@@ -54,10 +59,15 @@ void Chassis::AttitudeEncoding(float speedLF, float speedLB, float speedRF, floa
     Serial.println(speedRB);
 }
 
+void Motor::SetPWM(int _pwm) {
+    pwm=_pwm;
+}
+
 void setup() {
     // put your setup code here, to run once:
     Serial.begin(9600);
     chassis.Reset();
+    remotecontrol.Reset();
 }
 
 void loop() {
@@ -68,36 +78,36 @@ void loop() {
 void command(int mode) {
     switch (mode) {
         case 1:
-            Mecanumrun(-100, 40, -3);
+            chassis.MecanumRun(-100, 40, -3);
             delay(2100);
-            Mecanumrun(0, 0, 0);
+            chassis.MecanumRun(0, 0, 0);
             delay(3000);
-            Mecanumrun(100, -40, 2);
+            chassis.MecanumRun(100, -40, 2);
             delay(2100);
-            Mecanumrun(0, 0, 0);
+            chassis.MecanumRun(0, 0, 0);
             delay(3000);
         case 2:
-            Mecanumrun(-150, 30, 0);
+            chassis.MecanumRun(-150, 30, 0);
             delay(1500);
-            Mecanumrun(0, 0, 0);
+            chassis.MecanumRun(0, 0, 0);
             delay(3000);
-            Mecanumrun(150, -30, 0);
+            chassis.MecanumRun(150, -30, 0);
             delay(1500);
-            Mecanumrun(0, 0, 0);
+            chassis.MecanumRun(0, 0, 0);
             delay(3000);
         case 3:
-            Mecanumrun(-75, 60, 0);
+            chassis.MecanumRun(-75, 60, 0);
             delay(1500);
-            Mecanumrun(0, 0, 0);
+            chassis.MecanumRun(0, 0, 0);
             delay(3000);
-            Mecanumrun(75, -60, 0);
+            chassis.MecanumRun(75, -60, 0);
             delay(1500);
-            Mecanumrun(0, 0, 0);
+            chassis.MecanumRun(0, 0, 0);
             delay(3000);
     }
 }
 
-void Chassis::MecanumRun(float FBSpeed, float LRSpeed, float RTSpeed) {//整个底盘运动的速度解算
+void Chassis::MecanumRun(int FBSpeed, int LRSpeed, int RTSpeed) {//整个底盘运动的速度解算
     float speedLF = LRSpeed - FBSpeed + RTSpeed;
     float speedRF = LRSpeed + FBSpeed - RTSpeed;
     float speedRB = LRSpeed - FBSpeed - RTSpeed;
@@ -118,7 +128,7 @@ void Chassis::MecanumRun(float FBSpeed, float LRSpeed, float RTSpeed) {//整个�
     AttitudeEncoding(speedLF, speedLB, speedRF, speedRB);
 }
 
-void Motor::Handle() {
+void Motor::Handle() {//给每个轮子加上pwm波进行控制（最终输出函数）
     switch (id) {
         case FL_WHEEL:
             if (pwm > 0) {

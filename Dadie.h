@@ -10,32 +10,47 @@
 #define BR_WHEEL 3
 #define FR_WHEEL 4
 
-enum{
+enum {
+    STOP,
     ROTATE,
     MOVE,
-    STOP,
     LOCK
-}Move_Mode_e;
+} Move_Mode_e;
 
-class Motor{
+class Motor {
 public:
-    void Reset(int _id){id=_id;}
+    void Reset(int _id) { id = _id; }
 
     void Handle();
+
+    void SetPWM(int pwm);
+
 private:
-   int id;
-   float pwm;
+    int id;
+    float pwm;
 };
 
-class Chassis{
+class Chassis {
 public:
     void Reset();
+
     void Handle();
-    void MecanumRun(float FBSeed, float LRSpeed, float RTSpeed);
-    void AttitudeEncoding(float speedLF, float speedLB,float speedRF,float speedRB);
+
+    void MecanumRun(int FBSeed, int LRSpeed, int RTSpeed);
+
+    void AttitudeEncoding(int speedLF, int speedLB, int speedRF, int speedRB);
+
 private:
-    float FBVelocity,LRVelocity,RTVelocity;
-    Motor FL,FR,BL,BR;
+    float FBVelocity, LRVelocity, RTVelocity;
+    Motor FL, FR, BL, BR;
+};
+
+class RemoteControl {
+public:
+    void Reset();
+
+private:
+    int Mode;
 };
 
 #endif //JI_BOBOGAME2023_DADIE_H
