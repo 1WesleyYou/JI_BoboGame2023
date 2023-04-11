@@ -39,7 +39,6 @@ void Chassis::Handle() {
     BR.Handle();
 }
 
-
 void Chassis::AttitudeEncoding(float speedLF, float speedLB, float speedRF, float speedRB) {
     FL.Handle();
     FR.Handle();
@@ -58,12 +57,12 @@ void Chassis::AttitudeEncoding(float speedLF, float speedLB, float speedRF, floa
 void setup() {
     // put your setup code here, to run once:
     Serial.begin(9600);
-
+    chassis.Reset();
 }
 
 void loop() {
     command(mode);
-
+    chassis.Handle();
 }
 
 void command(int mode) {
