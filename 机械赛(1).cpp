@@ -1,4 +1,5 @@
 #include<SoftwareSerial.h>
+#include <PS2X_lib.h>  //for v1.6
 #include "Dadie.h"
 //左前轮（LF）引脚
 #define LF1 6
@@ -25,6 +26,7 @@ int origin, x, y;
 Chassis chassis;
 RemoteControl remotecontrol;
 int comd;
+PS2X ps2x;
 
 void Chassis::Reset() {//底盘初始化赋值，每个轮子id设置
     FL.Reset(FL_WHEEL);
@@ -42,6 +44,46 @@ void Chassis::Handle() {//底盘最终输出，每个轮子输出
 
 void RemoteControl::Reset() {
     Mode=STOP;
+}
+
+void RemoteControl::Input(){
+    ps2x.read_gamepad();          //read controller
+
+    if(ps2x.ButtonPressed(GREEN_FRET)){//按下：进入自旋模式
+        Serial.println("Green Fret Pressed");
+        Mode=ROTATE;
+    }
+    if(ps2x.ButtonPressed(RED_FRET)){//按下：进入直行模式
+        Serial.println("Red Fret Pressed");
+        Mode=MOVE;
+    }
+    if(ps2x.ButtonPressed(YELLOW_FRET)){//按下：进入底盘锁死模式
+        Serial.println("Yellow Fret Pressed");
+        Mode=LOCK;
+    }
+   /*
+    if(ps2x.ButtonPressed(BLUE_FRET))
+        Serial.println("Blue Fret Pressed");
+    if(ps2x.ButtonPressed(ORANGE_FRET))
+        Serial.println("Orange Fret Pressed");
+*///TODO:这几个按钮不知道要干嘛
+    if(ps2x.ButtonPressed(STAR_POWER))
+        Serial.println("Star Power Command");
+
+    if(ps2x.Button(UP_STRUM))  {
+        Serial.println("Up Strum");
+
+    }        //will be TRUE as long as button is pressed
+
+    if(ps2x.Button(DOWN_STRUM))
+        Serial.println("DOWN Strum");
+
+    if(ps2x.Button(PSB_START)){//will be TRUE as long as button is pressed
+        Serial.println("Start is being held");
+    }
+
+    if(ps2x.Button(PSB_SELECT))
+        Serial.println("Select is being held");
 }
 
 void Chassis::AttitudeEncoding(int speedLF, int speedLB, int speedRF, int speedRB) {//底盘运动编码
@@ -76,7 +118,7 @@ void loop() {
 }
 
 void command(int mode) {
-    switch (mode) {
+    switch (mode){
         case 1:
             chassis.MecanumRun(-100, 40, -3);
             delay(2100);

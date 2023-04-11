@@ -10,6 +10,11 @@
 #define BR_WHEEL 3
 #define FR_WHEEL 4
 
+#define PS2_DAT        13  //14
+#define PS2_CMD        11  //15
+#define PS2_SEL        10  //16
+#define PS2_CLK        12  //17
+
 enum {
     STOP,
     ROTATE,
@@ -48,6 +53,7 @@ private:
 class RemoteControl {
 public:
     void Reset();
+    void Input();
 
 private:
     int Mode;
