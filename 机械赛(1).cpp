@@ -43,46 +43,49 @@ void Chassis::Handle() {//底盘最终输出，每个轮子输出
 }
 
 void RemoteControl::Reset() {
-    Mode=STOP;
+    Mode = STOP;
+    FBVelocity = 0;
+    LRVelocity = 0;
+    RTVelocity = 0;
 }
 
-void RemoteControl::Input(){
+void RemoteControl::Input() {
     ps2x.read_gamepad();          //read controller
 
-    if(ps2x.ButtonPressed(GREEN_FRET)){//按下：进入自旋模式
+    if (ps2x.ButtonPressed(GREEN_FRET)) {//按下：进入自旋模式
         Serial.println("Green Fret Pressed");
-        Mode=ROTATE;
+        Mode = ROTATE;
     }
-    if(ps2x.ButtonPressed(RED_FRET)){//按下：进入直行模式
+    if (ps2x.ButtonPressed(RED_FRET)) {//按下：进入直行模式
         Serial.println("Red Fret Pressed");
-        Mode=MOVE;
+        Mode = MOVE;
     }
-    if(ps2x.ButtonPressed(YELLOW_FRET)){//按下：进入底盘锁死模式
+    if (ps2x.ButtonPressed(YELLOW_FRET)) {//按下：进入底盘锁死模式
         Serial.println("Yellow Fret Pressed");
-        Mode=LOCK;
+        Mode = LOCK;
     }
-   /*
-    if(ps2x.ButtonPressed(BLUE_FRET))
-        Serial.println("Blue Fret Pressed");
-    if(ps2x.ButtonPressed(ORANGE_FRET))
-        Serial.println("Orange Fret Pressed");
-*///TODO:这几个按钮不知道要干嘛
-    if(ps2x.ButtonPressed(STAR_POWER))
+    /*
+     if(ps2x.ButtonPressed(BLUE_FRET))
+         Serial.println("Blue Fret Pressed");
+     if(ps2x.ButtonPressed(ORANGE_FRET))
+         Serial.println("Orange Fret Pressed");
+ *///TODO:这几个按钮不知道要干嘛
+    if (ps2x.ButtonPressed(STAR_POWER))
         Serial.println("Star Power Command");
 
-    if(ps2x.Button(UP_STRUM))  {
+    if (ps2x.Button(UP_STRUM)) {
         Serial.println("Up Strum");
 
     }        //will be TRUE as long as button is pressed
 
-    if(ps2x.Button(DOWN_STRUM))
+    if (ps2x.Button(DOWN_STRUM))
         Serial.println("DOWN Strum");
 
-    if(ps2x.Button(PSB_START)){//will be TRUE as long as button is pressed
+    if (ps2x.Button(PSB_START)) {//will be TRUE as long as button is pressed
         Serial.println("Start is being held");
     }
 
-    if(ps2x.Button(PSB_SELECT))
+    if (ps2x.Button(PSB_SELECT))
         Serial.println("Select is being held");
 }
 
@@ -102,52 +105,104 @@ void Chassis::AttitudeEncoding(int speedLF, int speedLB, int speedRF, int speedR
 }
 
 void Motor::SetPWM(int _pwm) {
-    pwm=_pwm;
+    pwm = _pwm;
 }
 
-void setup() {
-    // put your setup code here, to run once:
-    Serial.begin(9600);
-    chassis.Reset();
-    remotecontrol.Reset();
-}
+void RemoteControl::Command() {
+    ps2x.read_gamepad(false, vibrate); //read controller and set large motor to spin at 'vibrate' speed
 
-void loop() {
-    remotecontrol.Command();
-    chassis.Handle();
-}
+    if (ps2x.Button(PSB_START))         //will be TRUE as long as button is pressed
+        Serial.println("Start is being held");
+    if (ps2x.Button(PSB_SELECT))
+        Serial.println("Select is being held");
 
-void command(int mode) {
-    switch (mode){
-        case 1:
-            chassis.MecanumRun(-100, 40, -3);
-            delay(2100);
-            chassis.MecanumRun(0, 0, 0);
-            delay(3000);
-            chassis.MecanumRun(100, -40, 2);
-            delay(2100);
-            chassis.MecanumRun(0, 0, 0);
-            delay(3000);
-        case 2:
-            chassis.MecanumRun(-150, 30, 0);
-            delay(1500);
-            chassis.MecanumRun(0, 0, 0);
-            delay(3000);
-            chassis.MecanumRun(150, -30, 0);
-            delay(1500);
-            chassis.MecanumRun(0, 0, 0);
-            delay(3000);
-        case 3:
-            chassis.MecanumRun(-75, 60, 0);
-            delay(1500);
-            chassis.MecanumRun(0, 0, 0);
-            delay(3000);
-            chassis.MecanumRun(75, -60, 0);
-            delay(1500);
-            chassis.MecanumRun(0, 0, 0);
-            delay(3000);
+    if (ps2x.Button(PSB_PAD_UP)) {      //will be TRUE as long as button is pressed
+        Serial.print("Up held this hard: ");
+        chassis.Forward();
+        Serial.println(ps2x.Analog(PSAB_PAD_UP), DEC);
     }
+    if (ps2x.Button(PSB_PAD_RIGHT)) {
+        Serial.print("Right held this hard: ");
+        chassis.LeftRotate();
+        Serial.println(ps2x.Analog(PSAB_PAD_RIGHT), DEC);
+    }
+    if (ps2x.Button(PSB_PAD_LEFT)) {
+        Serial.print("LEFT held this hard: ");
+        chassis.RightRotate();
+        Serial.println(ps2x.Analog(PSAB_PAD_LEFT), DEC);
+    }
+    if (ps2x.Button(PSB_PAD_DOWN)) {
+        Serial.print("DOWN held this hard: ");
+        chassis.Back();
+        Serial.println(ps2x.Analog(PSAB_PAD_DOWN), DEC);
+    }
+
+    vibrate = ps2x.Analog(PSAB_CROSS);  //this will set the large motor vibrate speed based on how hard you press the blue (X) button
+    if (ps2x.NewButtonState()) {        //will be TRUE if any button changes state (on to off, or off to on)
+        if (ps2x.Button(PSB_L3))
+            Serial.println("L3 pressed");
+        if (ps2x.Button(PSB_R3))
+            Serial.println("R3 pressed");
+        if (ps2x.Button(PSB_L2))
+            Serial.println("L2 pressed");
+        if (ps2x.Button(PSB_R2))
+            Serial.println("R2 pressed");
+        if (ps2x.Button(PSB_TRIANGLE))
+            Serial.println("Triangle pressed");
+        STOP();
+    }
+
+    if (ps2x.ButtonPressed(PSB_CIRCLE))               //will be TRUE if button was JUST pressed
+        Serial.println("Circle just pressed");
+    if (ps2x.NewButtonState(PSB_CROSS))               //will be TRUE if button was JUST pressed OR released
+        Serial.println("X just changed");
+    if (ps2x.ButtonReleased(PSB_SQUARE))              //will be TRUE if button was JUST released
+        Serial.println("Square just released");
+
+    if (ps2x.Button(PSB_L1) || ps2x.Button(PSB_R1)) { //print stick values if either is TRUE
+        Serial.print("Stick Values:");
+        Serial.print(ps2x.Analog(PSS_LY), DEC); //Left stick, Y axis. Other options: LX, RY, RX
+        Serial.print(",");
+        Serial.print(ps2x.Analog(PSS_LX), DEC);
+        Serial.print(",");
+        Serial.print(ps2x.Analog(PSS_RY), DEC);
+        Serial.print(",");
+        Serial.println(ps2x.Analog(PSS_RX), DEC);
+    }
+    delay(50);
 }
+
+//void command(int mode) {
+//    switch (mode) {
+//        case 1:
+//            chassis.MecanumRun(-100, 40, -3);
+//            delay(2100);
+//            chassis.MecanumRun(0, 0, 0);
+//            delay(3000);
+//            chassis.MecanumRun(100, -40, 2);
+//            delay(2100);
+//            chassis.MecanumRun(0, 0, 0);
+//            delay(3000);
+//        case 2:
+//            chassis.MecanumRun(-150, 30, 0);
+//            delay(1500);
+//            chassis.MecanumRun(0, 0, 0);
+//            delay(3000);
+//            chassis.MecanumRun(150, -30, 0);
+//            delay(1500);
+//            chassis.MecanumRun(0, 0, 0);
+//            delay(3000);
+//        case 3:
+//            chassis.MecanumRun(-75, 60, 0);
+//            delay(1500);
+//            chassis.MecanumRun(0, 0, 0);
+//            delay(3000);
+//            chassis.MecanumRun(75, -60, 0);
+//            delay(1500);
+//            chassis.MecanumRun(0, 0, 0);
+//            delay(3000);
+//    }
+//}
 
 void Chassis::MecanumRun(int FBSpeed, int LRSpeed, int RTSpeed) {//整个底盘运动的速度解算
     int speedLF = LRSpeed - FBSpeed + RTSpeed;
@@ -207,4 +262,16 @@ void Motor::Handle() {//给每个轮子加上pwm波进行控制（最终输出�
                 analogWrite(RF1, 255 + pwm);
             }
     }
+}
+
+void setup() {
+    // put your setup code here, to run once:
+    Serial.begin(9600);
+    chassis.Reset();
+    remotecontrol.Reset();
+}
+
+void loop() {
+    remotecontrol.Command();
+    chassis.Handle();
 }
