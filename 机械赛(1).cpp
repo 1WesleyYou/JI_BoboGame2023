@@ -113,7 +113,7 @@ void setup() {
 }
 
 void loop() {
-    command(mode);
+    remotecontrol.Command();
     chassis.Handle();
 }
 
@@ -155,7 +155,7 @@ void Chassis::MecanumRun(int FBSpeed, int LRSpeed, int RTSpeed) {//整个底盘�
     int speedRB = LRSpeed - FBSpeed - RTSpeed;
     int speedLB = LRSpeed + FBSpeed + RTSpeed;
 
-    float Max = speedLF;
+    int Max = speedLF;
     if (Max < speedLB) Max = speedLB;
     if (Max < speedRF) Max = speedRF;
     if (Max < speedRB) Max = speedRB;

@@ -45,6 +45,18 @@ public:
 
     void AttitudeEncoding(int speedLF, int speedLB, int speedRF, int speedRB);
 
+    inline void Forward() { MecanumRun(100, 0, 0); }
+
+    inline void LeftMove() { MecanumRun(0, 100, 0); }
+
+    inline void RightMove() { MecanumRun(0, -100, 0); }
+
+    inline void LeftRotate() { MecanumRun(0, 0, 1); }
+
+    inline void RightRotate() { MecanumRun(0, 0, -1); }
+
+    inline void Back() { MecanumRun(-100, 0, 0); }
+
 private:
     float FBVelocity, LRVelocity, RTVelocity;
     Motor FL, FR, BL, BR;
@@ -53,11 +65,14 @@ private:
 class RemoteControl {
 public:
     void Reset();
+
     void Input();
+
     void Command();
+
 private:
     int Mode;
-    int FBVelocity,LRVelocity,RTVelocity;
+    int FBVelocity, LRVelocity, RTVelocity;
 
 };
 
