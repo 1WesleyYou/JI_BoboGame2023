@@ -54,9 +54,11 @@ class RemoteControl {
 public:
     void Reset();
     void Input();
-
+    void Command();
 private:
     int Mode;
+    int FBVelocity,LRVelocity,RTVelocity;
+
 };
 
 #endif //JI_BOBOGAME2023_DADIE_H

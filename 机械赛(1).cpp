@@ -150,10 +150,10 @@ void command(int mode) {
 }
 
 void Chassis::MecanumRun(int FBSpeed, int LRSpeed, int RTSpeed) {//整个底盘运动的速度解算
-    float speedLF = LRSpeed - FBSpeed + RTSpeed;
-    float speedRF = LRSpeed + FBSpeed - RTSpeed;
-    float speedRB = LRSpeed - FBSpeed - RTSpeed;
-    float speedLB = LRSpeed + FBSpeed + RTSpeed;
+    int speedLF = LRSpeed - FBSpeed + RTSpeed;
+    int speedRF = LRSpeed + FBSpeed - RTSpeed;
+    int speedRB = LRSpeed - FBSpeed - RTSpeed;
+    int speedLB = LRSpeed + FBSpeed + RTSpeed;
 
     float Max = speedLF;
     if (Max < speedLB) Max = speedLB;
